@@ -19,6 +19,8 @@ function log(text,delta="classic"){
     } 
         
 function test() {
+    //obj = document.getElementById("logger");
+    //obj.style.height = (body.style.height);
     obj = document.getElementById("dialogue_box");
     obj.innerHTML = "<p> Actions available </p>";
     for (k=0;k<actions.length;k++) {

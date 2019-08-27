@@ -1,10 +1,14 @@
-body {
-       font-family:"Arial";
-       background-color:#666666;
-       color:#B09E99;
-scroll-behavior: smooth;
-    
+html,body {
+  height:100%;
+  width:100%;
+  padding:0px;
+  margin:0px;
+ font-family:"Arial";
+ background-color:#666666;
+ color:#B09E99;
+       /* scroll-behavior: smooth;*/
 }
+
        
 input.button {
        border:none;
@@ -36,7 +40,15 @@ input.button:active {
        background-color:#e1d8c6;
        border-radius:5px;
        color:#666666;
-       height:680px;
+        /* Firefox */
+        height: -moz-calc(100% - 80px);
+        /* WebKit */
+        height: -webkit-calc(100% - 80px);
+        /* Opera */
+        height: -o-calc(100% - 80px);
+        /* Standard */
+        height: calc(100% - 80px);       
+
         /* Firefox */
         width: -moz-calc(50% - 100px);
         /* WebKit */
@@ -45,7 +57,6 @@ input.button:active {
         width: -o-calc(50% - 100px);
         /* Standard */
         width: calc(50% - 100px);       
-       margin:auto;
        text-align:left;
        padding-left:50px;
        padding-right:50px;
@@ -63,6 +74,10 @@ input.button:active {
     padding-left:30px;
 }
 
+.container {
+  height:100%;
+}
+
 .dialogue{
     position:absolute;
     bottom:100px;
@@ -74,9 +89,9 @@ input.button:active {
     max-height:400px;
     width:50%;
     margin-left:25%;
-   text-align:left;
-   padding:20px;
-   opacity: 0;
+    text-align:left;
+    padding:20px;
+    opacity: 0;
     transition: opacity .2s ease-in;
 }
 
