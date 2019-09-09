@@ -1,24 +1,42 @@
 var sentences = [];
-var actions = []
+var actions = [];
+var spool = false
 
-function log(text,delta="classic"){
+/*
+
+ Remember that player actions are executed imediantly 
+
+ Thus, arrives into text out of order
+
+ List should be organised after sentences and player actions is just on to add
+
+ List of sentences (being processed) should hold tuple (text, className) so
+
+ the are formatted correctly.
+
+*/
+
+function log(text,delta="classic",animate=true){
         obj = document.getElementById("logger");
         if(obj)
             obj.innerHTML += "<p class='tester "+delta+"'>"+text+"</p>";
             //obj.scrollTop = obj.scrollHeight-obj.offsetHeight -1;
             //setTimeout(removeAnimation,1000)
-        elements = obj.getElementsByTagName("p");
-        for (i=0;i<elements.length-1;i++) {
-           elements[i].className = elements[i].className.replace('tester',"");
-        }
-        last = elements[elements.length-1];
-        last.addEventListener("webkitAnimationEnd", myEndFunction);
+        if (animate) {
+                elements = obj.getElementsByTagName("p");
+                for (i=0;i<elements.length-1;i++) {
+                   elements[i].className = elements[i].className.replace('tester',"");
+                }
+
+                last = elements[elements.length-1];
+                last.addEventListener("webkitAnimationEnd", myEndFunction);
+            }
         //last.setAttribute("line",idx)
         obj.scrollTop = obj.scrollHeight-obj.offsetHeight -1;
         return last
     } 
-        
-function test() {
+
+function receiveNewActions() {
     //obj = document.getElementById("logger");
     //obj.style.height = (body.style.height);
     obj = document.getElementById("dialogue_box");
@@ -28,28 +46,69 @@ function test() {
         obj.innerHTML += "<div class='actionElement' onclick='doAction(\""+action["tag"]+"\",\""+action["result"]+"\")'>"+action["discription"]+"</div>";
     }
     sentence = sentences.shift();
-    if (sentence) log(sentence);
-
+    if (sentence) addSentence(sentence);
 }
+
+function emptySentences(){
+    //alert("pushing");
+    //removeAnimation();
+    spool = true;
+    /*
+    sentence = sentences.shift();
+    while (sentence) {
+        addSentence(sentence,false);
+        sentence = sentences.shift();
+    }
+    */
+}
+
+function hideit2() {
+    alert("j");
+    obj = document.getElementById("dialogue_box");
+    obj.style.display = "none";
+}
+
 
 function viewActions() {
     obj = document.getElementById("dialogue_box")
     obj.style.display = "block";
-    if (obj.style.opacity != "1" || obj.style.opacity == null) {
-        obj.style.opacity = "1";
+    obj.style.opacity = "1";
+    /*
+    if (obj.style.display == "block") {
     } else {
-        obj.style.opacity = "0";
+        //obj.style.opacity = "0";
+        //obj.addEventListener("webkitAnimationEnd", hideit2);
+        obj.style.display = "none";
     }
+    */
+    /*
+    if (obj.style.display == "none") {
+        obj.style.display = "block";
+    } else {
+        obj.style.display = "block";
+
+    }
+    */
 }
 
 function doAction(tag, result) {
-        log(result,"italic")
+        obj = document.getElementById("dialogue_box")
+        obj.style.opacity = "0";
+        obj.style.display = "none";
+        //obj.addEventListener("webkitAnimationEnd", hideit2);
+
+        sentences.push([result,"italic",tag])
+        sentence = sentences.shift();
+        if (sentence) addSentence(sentence);
+        //log(result,"italic")
+        /*
         obj = document.getElementById("dialogue_box")
         obj.style.opacity = "0";
         data = JSON.stringify({"message":"getmore","response":tag});
         url = "http://localhost:5003/load";
         //url = "http://pcl21388.dn.lan/sha256";
         if (ajax(url,data,receiveStory));
+        */
 }
 
 function removeAnimation() {
@@ -57,13 +116,37 @@ function removeAnimation() {
     elements = obj.getElementsByTagName("p");
     for (i=0;i<elements.length;i++) {
        elements[i].className = elements[i].className.replace('tester',"");
+       //elements[i].removeEventListener("webkitAnimationEnd", myEndFunction);
+    }
+}
+
+function addSentence(sentence,animate=true){
+    log(sentence[0],sentence[1],animate);
+    if (sentence[1] == "italic"){
+            obj = document.getElementById("dialogue_box")
+            //obj.style.opacity = "0";
+            //obj.style.display="none";
+            data = JSON.stringify({"message":"getmore","response":sentence[2]});
+            url = "http://localhost:5003/load";
+            //url = "http://pcl21388.dn.lan/sha256";
+            if (ajax(url,data,receiveStory));
     }
 }
 
 function myEndFunction() {
     this.className = this.className.replace('tester',"")
     sentence = sentences.shift()
-    if (sentence) log(sentence)
+    if (spool){
+        while (sentence){
+            addSentence(sentence,false)
+            sentence = sentences.shift()
+        }
+    } else {
+        if (sentence) { 
+            addSentence(sentence);
+        }
+    }
+    
 }
 
 
@@ -77,12 +160,15 @@ function getStory() {
 function receiveStory(req) {
     if (req.status==200){
             message = JSON.parse(req.responseText);
-            sentences = sentences.concat(message["content"]);
+            for (msg in message["content"]){
+                sentences.push([message["content"][msg],"classic"]);
+            }
+            //sentences = sentences.concat(message["content"]);
             actions = message["actions"];
-            
+            spool = false;
             //obj.value = message["hashkey"];
             //updatesaved(message["hashkey"]);
-            test();
+            receiveNewActions();
     }
     else {
         alert("Error Message Code:"+req.status+", "+req.statusText);

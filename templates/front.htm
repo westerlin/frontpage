@@ -12,7 +12,7 @@
 <body onload="getStory()">
 
 <center class="container">
-<div class="logger" id="logger"></div>
+<div class="logger" id="logger" onclick="emptySentences()"></div>
 <input type="button" class="button" value="more" onclick="getStory()"/>
 <input type="button" class="button" value="action" onclick="viewActions()"/>
 
@@ -20,9 +20,6 @@
 
 
 <div id="dialogue_box" class="dialogue">
- <div class="actionElement" onclick="doAction('BALCONY')">Look at balcony</div>
- <div class="actionElement" onclick="doAction('WAIT')">Wait and see</div>
- <div class="actionElement" onclick="doAction('ENDOF')">Go to the end of the alley</div>
 </div>
 
 </body>
